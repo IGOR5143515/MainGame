@@ -12,6 +12,8 @@ AMyActor::AMyActor()
 
 	PrimaryActorTick.bCanEverTick = true;
 
+	Index = 1;
+
 	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
 	SetRootComponent(SceneComponent);
 
@@ -20,6 +22,8 @@ AMyActor::AMyActor()
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("BoxComponent");
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AMyActor::OnBeginOverlap);
+	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &AMyActor::EndOverlap);
+
 
 	BasePlate->SetupAttachment(GetRootComponent());
 	Button->SetupAttachment(BasePlate);
@@ -38,11 +42,24 @@ void AMyActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 }
+
 
 void AMyActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Error, TEXT("Overlapped"));
+	PushButton = true;
+}
+
+void AMyActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Error, TEXT("EndOverlapped"));
+	PushButton = false;
 }
 
 
+bool AMyActor::IsPushed()
+{
+	return PushButton;
+}
