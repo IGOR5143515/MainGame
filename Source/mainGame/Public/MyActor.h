@@ -27,6 +27,8 @@ protected:
 	
 
 public:	
+
+	int32 Index;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	

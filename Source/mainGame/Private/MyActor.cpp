@@ -10,7 +10,6 @@
 AMyActor::AMyActor()
 {
 
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
@@ -19,24 +18,18 @@ AMyActor::AMyActor()
 	BasePlate = CreateDefaultSubobject<UStaticMeshComponent>("BasePlate");
 	Button = CreateDefaultSubobject<UStaticMeshComponent>("Button");
 
-
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("BoxComponent");
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AMyActor::OnBeginOverlap);
 
-	BoxComponent->OnComponentBeginOverlap.AddDynamic(this ,&AMyActor::OnBeginOverlap);
-	
-	
 	BasePlate->SetupAttachment(GetRootComponent());
-	Button->SetupAttachment(GetRootComponent());
-
-
-
+	Button->SetupAttachment(BasePlate);
+	BoxComponent->SetupAttachment(Button);
 }
 
 // Called when the game starts or when spawned
 void AMyActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
