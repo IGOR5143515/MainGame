@@ -50,7 +50,7 @@ bool APlate::ReadyToMove()
 		
 		auto ButtonActor = Cast<AMyActor>(Actor);
 	
-		if (ButtonActor->GetIndex() == 0 && !ButtonActor->IsPushed()) {
+		if (ButtonActor->GetIndex() == IDPlatform && !ButtonActor->IsPushed()) {
 			return false;
 		}
 	}

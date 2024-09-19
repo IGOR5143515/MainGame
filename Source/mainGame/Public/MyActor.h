@@ -54,7 +54,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UBoxComponent* BoxComponent;
 
-	
+	UFUNCTION(BlueprintCallable)
 	bool IsPushed();
 	
 	UFUNCTION()
