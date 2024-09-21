@@ -3,9 +3,11 @@
 
 #include "Character/MyGameMode.h"
 #include "Character/CubeCharacter.h"
+#include "Character/MyPlayerController.h"
 
 AMyGameMode::AMyGameMode()
 {
 	DefaultPawnClass = ACubeCharacter::StaticClass();
+	PlayerControllerClass = AMyPlayerController::StaticClass();
 
 }
