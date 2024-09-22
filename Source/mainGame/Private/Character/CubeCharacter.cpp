@@ -1,16 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/CubeCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "DrawDebugHelpers.h"
-// Sets default values
+#include "Components/HealthComponent.h"
+#include "AI/AICharacter.h"
+#include "Engine/DamageEvents.h"
+#include "Components/CapsuleComponent.h"
+
 ACubeCharacter::ACubeCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 
@@ -19,25 +18,28 @@ ACubeCharacter::ACubeCharacter()
 	SpringArm->SetupAttachment(GetRootComponent());
 	CameraComponent->SetupAttachment(SpringArm);
 
-
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealtComponent");
 
 }
 
-// Called when the game starts or when spawned
+
+
 void ACubeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	HealthComponent->OnDeathDelegate.AddUObject(this, &ACubeCharacter::OnDeath);
+	OnTakeAnyDamage.AddDynamic(this, &ACubeCharacter::OnTakeAnyDamageHandle);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACubeCharacter::OnOverlap);
 }
 
-// Called every frame
+
 void ACubeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called to bind functionality to input
+
 void ACubeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -51,34 +53,28 @@ void ACubeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACubeCharacter::JumpCharacter);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACubeCharacter::StartFire);
-
+	
+	
 }
 
 void ACubeCharacter::MoveForward(float Value)
 {
-
 	AddMovementInput(GetActorForwardVector(), Value);
-
 }
 
 void ACubeCharacter::MoveRight(float Value)
 {
 	AddMovementInput(GetActorRightVector(), Value);
-
 }
 
 void ACubeCharacter::JumpCharacter()
 {
-
 	LaunchCharacter(FVector(0, 0, 500), false, false);
-
 }
+
 
 void ACubeCharacter::StartFire()
 {
-
-	
-
 	FVector SocketLocation = GetMesh()->GetSocketLocation(SocketName);
 
 	FVector Location;
@@ -96,15 +92,44 @@ void ACubeCharacter::StartFire()
 	COQP.AddIgnoredActor(this);
 	FCollisionResponseParams ColRes;
 	GetWorld()->LineTraceSingleByChannel(HitResult,
-		TraceStart,
-		TraceEnd, ECollisionChannel::ECC_Visibility,
-		COQP, ColRes);
+	TraceStart,
+	TraceEnd, ECollisionChannel::ECC_Visibility,
+	COQP, ColRes);
 
 	DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Green,false,1.0f);
 
-
-
-
-
 }
 
+
+
+void ACubeCharacter::OnDeath()
+{
+	UE_LOG(LogTemp, Error, TEXT("Dead"));
+	SetLifeSpan(1.0f);
+}
+
+void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor, 
+	float Damage,
+	const UDamageType* 
+	DamageType,
+	AController* InstigatedBy,
+	AActor* DamageCauser)
+{
+	HealthComponent->TakeDamage(Damage);
+}
+
+void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	
+	if (HealthComponent->IsDead())
+		HealthComponent->OnDeathDelegate.Broadcast();
+
+	if(OtherActor->IsA<AAICharacter>())
+	TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
+
+}

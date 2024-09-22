@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "AICharacter.generated.h"
 
+class UBehaviorTree;
+
 UCLASS()
 class MAINGAME_API AAICharacter : public ACharacter
 {
@@ -25,5 +27,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	UBehaviorTree* BehaivorTree;
 
 };

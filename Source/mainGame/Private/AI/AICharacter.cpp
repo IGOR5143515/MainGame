@@ -2,13 +2,14 @@
 
 
 #include "AI/AICharacter.h"
+#include "AI/MyAIController.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	AIControllerClass = AMyAIController::StaticClass();
 }
 
 // Called when the game starts or when spawned
