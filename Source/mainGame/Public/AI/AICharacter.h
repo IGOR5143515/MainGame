@@ -7,7 +7,7 @@
 #include "AICharacter.generated.h"
 
 class UBehaviorTree;
-
+class UHealthComponent;
 UCLASS()
 class MAINGAME_API AAICharacter : public ACharacter
 {
@@ -17,9 +17,21 @@ public:
 	// Sets default values for this character's properties
 	AAICharacter();
 
+	UFUNCTION()
+	void OnDeathAI();
+
+	UFUNCTION()
+	void OnTakeAnyDamageHandleAI(AActor* DamagedActor,
+		float Damage,
+		const UDamageType*
+		DamageType,
+		AController* InstigatedBy,
+		AActor* DamageCauser);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+
 
 public:	
 	// Called every frame
@@ -30,5 +42,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	UBehaviorTree* BehaivorTree;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	UHealthComponent* HealthComponent;
+
 
 };

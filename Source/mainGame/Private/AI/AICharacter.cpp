@@ -3,6 +3,7 @@
 
 #include "AI/AICharacter.h"
 #include "AI/MyAIController.h"
+#include "Components/HealthComponent.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -10,6 +11,9 @@ AAICharacter::AAICharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMyAIController::StaticClass();
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HelathComponent");
+
 }
 
 // Called when the game starts or when spawned
@@ -17,6 +21,9 @@ void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	HealthComponent->OnDeathDelegate.AddUObject(this, &AAICharacter::OnDeathAI);
+	OnTakeAnyDamage.AddDynamic(this, &AAICharacter::OnTakeAnyDamageHandleAI);
+
 }
 
 // Called every frame
@@ -33,3 +40,22 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
+
+void AAICharacter::OnDeathAI()
+{
+	SetLifeSpan(1.0f);
+}
+
+void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
+	float Damage,
+	const UDamageType* DamageType,
+	AController* InstigatedBy,
+	AActor* DamageCauser)
+{
+	if (HealthComponent->GetHealth() <= 0)
+		HealthComponent->OnDeathDelegate.Broadcast();
+
+	HealthComponent->TakeDamage(25);
+
+
+}

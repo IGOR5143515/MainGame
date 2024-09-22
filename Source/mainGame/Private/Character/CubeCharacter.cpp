@@ -95,8 +95,12 @@ void ACubeCharacter::StartFire()
 	TraceStart,
 	TraceEnd, ECollisionChannel::ECC_Visibility,
 	COQP, ColRes);
-
 	DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Green,false,1.0f);
+
+	if (HitResult.bBlockingHit) {
+		HitResult.GetActor()->TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
+	}
+
 
 }
 
