@@ -43,7 +43,7 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AAICharacter::OnDeathAI()
 {
-	SetLifeSpan(1.0f);
+	SetLifeSpan(0.1f);
 }
 
 void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
@@ -52,10 +52,11 @@ void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	if (HealthComponent->GetHealth() <= 0)
-		HealthComponent->OnDeathDelegate.Broadcast();
+
 
 	HealthComponent->TakeDamage(25);
 
+	if (HealthComponent->IsDead())
+		HealthComponent->OnDeathDelegate.Broadcast();
 
 }

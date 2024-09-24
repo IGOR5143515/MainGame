@@ -27,9 +27,12 @@ protected:
 
 public:	
 	void TakeDamage(float Value) {
+
 		UE_LOG(LogTemp, Error, TEXT("%f"), Health);
-		FMath::Clamp(Health = Health - Value, 0, 100);}
-	bool IsDead() { return Health <= 0; }
+		FMath::Clamp(Health = Health - Value, 0, MaxHealth);
+	}
+
+	bool IsDead() { return Health <= 0.0f; }
 	float GetHealth() { return Health; }
 	void SetHealth(float Value) { Health = Value; }
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

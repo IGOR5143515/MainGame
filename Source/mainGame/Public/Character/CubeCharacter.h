@@ -19,6 +19,13 @@ public:
 	
 	ACubeCharacter();
 
+	int TraceDistance = 2000;
+
+	FName SocketName = TEXT("GunSocket");
+
+	FTimerHandle TimerHandle;
+
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -33,10 +40,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UHealthComponent* HealthComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float DamageToCube;
+
 
 public:	
 	
-	int TraceDistance = 2000;
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -49,6 +58,10 @@ public:
 	void JumpCharacter();
 
 	void StartFire();
+
+	void StopFire();
+
+	void MakeHit();
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, 
@@ -68,7 +81,6 @@ public:
 	AController* InstigatedBy,
 	AActor* DamageCauser);
 
-	FName SocketName = TEXT("GunSocket");
 
 	
 };

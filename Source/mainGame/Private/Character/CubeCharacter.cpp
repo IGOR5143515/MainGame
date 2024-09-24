@@ -53,6 +53,7 @@ void ACubeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACubeCharacter::JumpCharacter);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACubeCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACubeCharacter::StopFire);
 	
 	
 }
@@ -75,6 +76,21 @@ void ACubeCharacter::JumpCharacter()
 
 void ACubeCharacter::StartFire()
 {
+	
+	if(GetWorld())
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACubeCharacter::MakeHit, 0.2f, true);
+
+	MakeHit();
+}
+
+void ACubeCharacter::StopFire()
+{
+	if (GetWorld())
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+}
+
+void ACubeCharacter::MakeHit()
+{
 	FVector SocketLocation = GetMesh()->GetSocketLocation(SocketName);
 
 	FVector Location;
@@ -85,23 +101,21 @@ void ACubeCharacter::StartFire()
 
 	FVector TraceStart = Location;
 	FVector Dir = Rotation.Vector();
-	FVector TraceEnd = Location + (Dir* TraceDistance);
+	FVector TraceEnd = Location + (Dir * TraceDistance);
 
 	FHitResult HitResult;
-	FCollisionQueryParams COQP; 
+	FCollisionQueryParams COQP;
 	COQP.AddIgnoredActor(this);
 	FCollisionResponseParams ColRes;
 	GetWorld()->LineTraceSingleByChannel(HitResult,
-	TraceStart,
-	TraceEnd, ECollisionChannel::ECC_Visibility,
-	COQP, ColRes);
-	DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Green,false,1.0f);
+		TraceStart,
+		TraceEnd, ECollisionChannel::ECC_Visibility,
+		COQP, ColRes);
+	DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Green, false, 1.0f);
 
 	if (HitResult.bBlockingHit) {
 		HitResult.GetActor()->TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
 	}
-
-
 }
 
 
@@ -109,7 +123,7 @@ void ACubeCharacter::StartFire()
 void ACubeCharacter::OnDeath()
 {
 	UE_LOG(LogTemp, Error, TEXT("Dead"));
-	SetLifeSpan(1.0f);
+	SetLifeSpan(0.1f);
 }
 
 void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor, 
@@ -120,6 +134,9 @@ void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor,
 	AActor* DamageCauser)
 {
 	HealthComponent->TakeDamage(Damage);
+
+	if (HealthComponent->IsDead())
+		HealthComponent->OnDeathDelegate.Broadcast();
 }
 
 void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -129,11 +146,20 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	
-	if (HealthComponent->IsDead())
-		HealthComponent->OnDeathDelegate.Broadcast();
+	if (OtherActor->IsA<AAICharacter>()) {
+		TakeDamage(DamageToCube, FDamageEvent(), Controller, GetParentActor());
+		
+		auto AIChar = Cast<AAICharacter>(OtherActor);
+		if (AIChar) {
 
-	if(OtherActor->IsA<AAICharacter>())
-	TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
+			FVector  LaunchDirection = AIChar->GetActorLocation() - GetActorLocation();
+			LaunchDirection.Z = 0;
+			LaunchDirection.Normalize();
 
+			float LaunchStrength = 2000;
+			
+			AIChar->LaunchCharacter(LaunchDirection*LaunchStrength, false, false);
+		
+		}
+	}
 }
