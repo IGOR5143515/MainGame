@@ -64,7 +64,7 @@ public:
 	void MakeHit();
 
 	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, 
+	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, 
 	AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, 
 	int32 OtherBodyIndex,
@@ -75,7 +75,7 @@ public:
 	void OnDeath();
 
 	UFUNCTION()
-	void OnTakeAnyDamageHandle(AActor* DamagedActor,
+	virtual void OnTakeAnyDamageHandle(AActor* DamagedActor,
 	float Damage,
 	const UDamageType* DamageType,
 	AController* InstigatedBy,

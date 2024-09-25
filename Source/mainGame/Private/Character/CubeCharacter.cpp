@@ -6,6 +6,7 @@
 #include "AI/AICharacter.h"
 #include "Engine/DamageEvents.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
 
 ACubeCharacter::ACubeCharacter()
 {
@@ -122,7 +123,7 @@ void ACubeCharacter::MakeHit()
 
 void ACubeCharacter::OnDeath()
 {
-	UE_LOG(LogTemp, Error, TEXT("Dead"));
+	
 	SetLifeSpan(0.1f);
 }
 
@@ -133,8 +134,10 @@ void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor,
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Error, TEXT("OnTakeAnyDamageHandle"));
+	
 	HealthComponent->TakeDamage(Damage);
-
+	
 	if (HealthComponent->IsDead())
 		HealthComponent->OnDeathDelegate.Broadcast();
 }
@@ -146,9 +149,12 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
+
+	
 	if (OtherActor->IsA<AAICharacter>()) {
-		TakeDamage(DamageToCube, FDamageEvent(), Controller, GetParentActor());
 		
+		
+		TakeDamage(DamageToCube, FDamageEvent(), GetController(), OtherActor);
 		auto AIChar = Cast<AAICharacter>(OtherActor);
 		if (AIChar) {
 
@@ -157,7 +163,6 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 			LaunchDirection.Normalize();
 
 			float LaunchStrength = 2000;
-			
 			AIChar->LaunchCharacter(LaunchDirection*LaunchStrength, false, false);
 		
 		}

@@ -9,6 +9,7 @@
 #include "Character/CubeCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Character/TowerCharacter/TowerCharacter.h"
 
 
 UFindService::UFindService()
@@ -29,6 +30,9 @@ void UFindService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	const auto Controller = OwnerComp.GetAIOwner();
 	if (!Controller)return;
 
+	auto Pawn = Controller->GetPawn();
+	if (!Pawn)return;
+
 	ACubeCharacter* Character = Cast<ACubeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (!Character)return;
 
@@ -41,16 +45,28 @@ void UFindService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	PerceptionComponent->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), 
 		FindingActors);
 
+
+	float BestDistance = MAX_FLT;
+
+	FVector TempDistance = Character->GetActorLocation();
+
 	for (auto x : FindingActors) {
 
-		if (x->IsA<ACubeCharacter>()) {
-			BlackBoard->SetValueAsVector(KeySelector.SelectedKeyName, Character->GetActorLocation());
-		}
+		if (x->IsA<ACubeCharacter>() || x->IsA<ATowerCharacter>()) {
 
+
+			auto CurrentDistance = (x->GetActorLocation() - Pawn->GetActorLocation()).Size();
+
+			if (CurrentDistance < BestDistance) {
+				BestDistance = CurrentDistance;
+				TempDistance = x->GetActorLocation();
+			}
+		}
+		
 	}
 
 
-
+	BlackBoard->SetValueAsVector(KeySelector.SelectedKeyName, TempDistance);
 	
 
 }
