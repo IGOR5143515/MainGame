@@ -8,6 +8,7 @@
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "AI/AICharacter.h"
 #include "AI/MyAIController.h"
+#include "Engine/TargetPoint.h"
 
 
 AMyGameMode::AMyGameMode()
@@ -49,6 +50,7 @@ void AMyGameMode::Tick(float DeltaSeconds)
 	if (GameOver())
 		UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
 	
+	
 
 }
 
@@ -67,6 +69,14 @@ void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
 void AMyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnBots(FVector(0, 0, 0), FRotator(0, 0, 0));
+
+	
+	
+		TArray<AActor*>TargetPointArray;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), TargetPointArray);
+
+		for (auto x : TargetPointArray)
+			SpawnBots(x->GetActorLocation(), x->GetActorRotation());
+
 
 }
