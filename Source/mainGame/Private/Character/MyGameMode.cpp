@@ -50,8 +50,11 @@ void AMyGameMode::Tick(float DeltaSeconds)
 	if (GameOver())
 		UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
 	
-	
+	TArray<AActor*> TowersArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAICharacter::StaticClass(), TowersArray);
 
+	if (TowersArray.Num() < 3)
+		SpawnBots(FVector(), FRotator());
 }
 
 void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
@@ -60,9 +63,20 @@ void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
 
 	FActorSpawnParameters SpawnParametrs;
 	SpawnParametrs.SpawnCollisionHandlingOverride= ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	auto AIController = GetWorld()->SpawnActor<AMyAIController>(BotClass, Location, Rotation, SpawnParametrs);
-	RestartPlayer(AIController);
+	//auto AIController = GetWorld()->SpawnActor<AMyAIController>(BotClass, Location, Rotation, SpawnParametrs);
+	//RestartPlayer(AIController);
 
+	if (!GetWorld())return;
+
+	AAICharacter* AICharacter = GetWorld()->SpawnActor<AAICharacter>(AIPawnClass, Location, Rotation, SpawnParametrs);
+
+	if (AICharacter) {
+
+		AMyAIController* AIController = GetWorld()->SpawnActor<AMyAIController>(MyControllerAI, Location, Rotation, SpawnParametrs);
+		if (AIController)
+			AIController->Possess(AICharacter);
+
+	}
 
 }
 

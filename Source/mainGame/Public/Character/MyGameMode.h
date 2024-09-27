@@ -27,7 +27,7 @@ public:
 	virtual void BeginPlay()override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	TSubclassOf<AMyAIController> BotClass;
+	TSubclassOf<AMyAIController> MyControllerAI;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TSubclassOf<APawn> AIPawnClass;
