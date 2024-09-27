@@ -57,9 +57,7 @@ void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
 
 
 	FActorSpawnParameters SpawnParametrs;
-
 	SpawnParametrs.SpawnCollisionHandlingOverride= ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 	auto AIController = GetWorld()->SpawnActor<AMyAIController>(BotClass, Location, Rotation, SpawnParametrs);
 	RestartPlayer(AIController);
 
