@@ -72,7 +72,7 @@ public:
 	const FHitResult& SweepResult);  
 
 	UFUNCTION()
-	void OnDeath();
+	virtual void OnDeath();
 
 	UFUNCTION()
 	virtual void OnTakeAnyDamageHandle(AActor* DamagedActor,

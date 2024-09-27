@@ -14,7 +14,11 @@ class MAINGAME_API ATowerCharacter : public ACubeCharacter
 {
 	GENERATED_BODY()
 public:
+	bool IsDead=false;
+public:
 	ATowerCharacter();
+
+	virtual void OnDeath()override;
 
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,

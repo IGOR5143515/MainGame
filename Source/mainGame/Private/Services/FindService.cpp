@@ -45,10 +45,10 @@ void UFindService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	PerceptionComponent->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), 
 		FindingActors);
 
-
+	if (FindingActors.Num() == 0) return;
 	float BestDistance = MAX_FLT;
-
 	FVector TempDistance = Character->GetActorLocation();
+	bool bFoundTarget = false;
 
 	for (auto x : FindingActors) {
 
@@ -60,13 +60,15 @@ void UFindService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 			if (CurrentDistance < BestDistance) {
 				BestDistance = CurrentDistance;
 				TempDistance = x->GetActorLocation();
+				bFoundTarget = true;
 			}
 		}
 		
 	}
-
-
+	if (bFoundTarget) {
 	BlackBoard->SetValueAsVector(KeySelector.SelectedKeyName, TempDistance);
+	}
+
 	
 
 }
