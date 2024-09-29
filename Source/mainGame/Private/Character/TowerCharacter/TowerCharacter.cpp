@@ -4,11 +4,14 @@
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "Character/TowerCharacter/TowerAIController.h"
 #include "Engine/DamageEvents.h"
+#include "AI/MyAIPerceptionComponent.h"
 
 ATowerCharacter::ATowerCharacter() :Super()
 {
 	AutoPossessAI = EAutoPossessAI::Disabled;
 	AIControllerClass = ATowerAIController::StaticClass();
+
+	
 }
 
 void ATowerCharacter::OnDeath()

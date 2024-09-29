@@ -6,9 +6,8 @@
 #include "Character/CubeCharacter.h"
 #include "TowerCharacter.generated.h"
 
-/**
- * 
- */
+class UMyAIPerceptionComponent;
+
 UCLASS()
 class MAINGAME_API ATowerCharacter : public ACubeCharacter
 {
@@ -27,4 +26,8 @@ public:
 		bool bFromSweep,
 		const FHitResult& SweepResult)override;
 	
+
+	
+
+
 };

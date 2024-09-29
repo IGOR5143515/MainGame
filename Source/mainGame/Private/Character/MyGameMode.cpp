@@ -50,11 +50,11 @@ void AMyGameMode::Tick(float DeltaSeconds)
 	if (GameOver())
 		UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
 	
-	TArray<AActor*> TowersArray;
+	/*TArray<AActor*> TowersArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAICharacter::StaticClass(), TowersArray);
 
 	if (TowersArray.Num() < 3)
-		SpawnBots(FVector(), FRotator());
+		SpawnBots(FVector(), FRotator());*/
 }
 
 void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
@@ -86,11 +86,11 @@ void AMyGameMode::BeginPlay()
 
 	
 	
-		TArray<AActor*>TargetPointArray;
+	/*	TArray<AActor*>TargetPointArray;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), TargetPointArray);
 
 		for (auto x : TargetPointArray)
-			SpawnBots(x->GetActorLocation(), x->GetActorRotation());
+			SpawnBots(x->GetActorLocation(), x->GetActorRotation());*/
 
 
 }
