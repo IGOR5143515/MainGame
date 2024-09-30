@@ -7,6 +7,8 @@
 #include "Engine/DamageEvents.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "Character/TowerCharacter/TowerCharacter.h"
+#include "Character/TowerCharacter/TowerAIController.h"
 
 ACubeCharacter::ACubeCharacter()
 {
@@ -37,6 +39,9 @@ void ACubeCharacter::BeginPlay()
 void ACubeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (Build)
+		BuildingMode();
+
 
 }
 
@@ -56,7 +61,7 @@ void ACubeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACubeCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACubeCharacter::StopFire);
 	
-	
+	PlayerInputComponent->BindAction("BuildingMode", IE_Pressed, this, &ACubeCharacter::IsBuildingMode);
 }
 
 void ACubeCharacter::MoveForward(float Value)
@@ -78,6 +83,10 @@ void ACubeCharacter::JumpCharacter()
 void ACubeCharacter::StartFire()
 {
 	
+	if (Build) {
+		PlaceTower();
+		return;
+	}
 	if(GetWorld())
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACubeCharacter::MakeHit, 0.2f, true);
 
@@ -121,6 +130,7 @@ void ACubeCharacter::MakeHit()
 
 
 
+
 void ACubeCharacter::OnDeath()
 {
 	
@@ -134,7 +144,7 @@ void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor,
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Error, TEXT("OnTakeAnyDamageHandle"));
+
 	
 	HealthComponent->TakeDamage(Damage);
 	
@@ -167,4 +177,104 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 		
 		}
 	}
+}
+
+void ACubeCharacter::IsBuildingMode()
+{
+	if (!Build) {
+		Build = true;
+		FActorSpawnParameters SpawnParametrs;
+		SpawnParametrs.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GhostTower = GetWorld()->SpawnActor<ATowerCharacter>(TowerClass, SpawnParametrs);
+		GhostTower->SetActorEnableCollision(false);
+		GhostTower->GetMesh()->SetMaterial(0,AllowedMaterial);
+		if (!GhostTower)return;
+
+		return;
+	}
+
+	if (Build) {
+		Build = false;
+		
+		GhostTower->Destroy();
+		GhostTower = nullptr;
+		return;
+	}
+
+	
+}
+void ACubeCharacter::BuildingMode()
+{
+
+	if (!GetWorld()||!TowerClass)return;
+
+	
+	FVector Location;
+	FRotator Rotation;
+
+	auto PlayerController = Cast<APlayerController>(Controller);
+	PlayerController->GetPlayerViewPoint(Location, Rotation);
+
+	FVector TraceStart = Location;
+	FVector Dir = Rotation.Vector();
+	FVector TraceEnd = Location + (Dir * TraceDistance);
+
+	FHitResult HitResult;
+	FCollisionQueryParams COQP;
+	COQP.AddIgnoredActor(this);
+	FCollisionResponseParams ColRes;
+	GetWorld()->LineTraceSingleByChannel(HitResult,
+	TraceStart,
+	TraceEnd, ECollisionChannel::ECC_Visibility,
+	COQP, ColRes);
+
+	if (HitResult.bBlockingHit) {
+		CheckBuildCondition(HitResult);
+		UpdateBuildLocation(HitResult.Location);
+	}
+
+}
+
+void ACubeCharacter::UpdateBuildLocation(FVector NewLocation)
+{
+	int AdjustedLocation = 75;
+	NewLocation.Z += AdjustedLocation;
+	if(GhostTower)
+	GhostTower->SetActorLocation(NewLocation);
+
+
+}
+
+void ACubeCharacter::PlaceTower()
+{
+	if (!GetWorld())return;
+	if (!CanBuild)return;
+
+	FActorSpawnParameters SpawnParametrs;
+	SpawnParametrs.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ATowerCharacter *Tower = GetWorld()->SpawnActor<ATowerCharacter>(TowerClass,GhostTower->GetActorLocation(),GhostTower->GetActorRotation(), SpawnParametrs);
+	if (!Tower)return;
+
+	
+	
+}
+
+void ACubeCharacter::CheckBuildCondition(FHitResult HitResult)
+{
+	float MaxAllowedSlope = 45.0f;
+	FVector Normal = HitResult.Normal;
+	FVector BuildLocation = HitResult.Location;
+
+	float SlopeAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Normal, FVector::UpVector)));
+	if (SlopeAngle > MaxAllowedSlope) 
+	{
+		CanBuild = false;  
+		GhostTower->GetMesh()->SetMaterial(0, ForbiddenMaterial);
+		return;
+	}
+	else
+		CanBuild = true;
+		GhostTower->GetMesh()->SetMaterial(0, AllowedMaterial);
+
 }

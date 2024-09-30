@@ -4,6 +4,8 @@
 #include "AI/AICharacter.h"
 #include "AI/MyAIController.h"
 #include "Components/HealthComponent.h"
+#include "AI/MyAIPerceptionComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -43,6 +45,13 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AAICharacter::OnDeathAI()
 {
+	auto controll =Cast<AMyAIController>(GetController());
+	if (!controll)return;
+	controll->Perception->SetActive(false);
+
+	SetActorEnableCollision(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	SetLifeSpan(0.1f);
 }
 

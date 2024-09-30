@@ -47,8 +47,8 @@ bool AMyGameMode::GameOver()
 
 void AMyGameMode::Tick(float DeltaSeconds)
 {
-	if (GameOver())
-		UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
+	//if (GameOver())
+	//	UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
 	
 	/*TArray<AActor*> TowersArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAICharacter::StaticClass(), TowersArray);

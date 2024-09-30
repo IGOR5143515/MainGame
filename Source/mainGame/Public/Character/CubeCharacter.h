@@ -9,6 +9,10 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
+class ATowerCharacter;
+class ATowerAIController;
+class UMaterial;
+
 
 UCLASS()
 class MAINGAME_API ACubeCharacter : public ACharacter
@@ -25,6 +29,9 @@ public:
 
 	FTimerHandle TimerHandle;
 
+	bool Build = false;
+	bool CanBuild = true;
+	void IsBuildingMode();
 
 protected:
 	
@@ -42,6 +49,20 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DamageToCube;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Building")
+	TSubclassOf<ATowerCharacter> TowerClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Building")
+	TSubclassOf<ATowerAIController> TowerControllerClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Building")
+	UMaterial* AllowedMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Building")
+	UMaterial* ForbiddenMaterial;
+
+	ATowerCharacter* GhostTower=nullptr;
 
 
 public:	
@@ -62,6 +83,15 @@ public:
 	void StopFire();
 
 	void MakeHit();
+
+	void BuildingMode();
+
+	void UpdateBuildLocation(FVector NewLocation);
+
+	void PlaceTower();
+
+	void CheckBuildCondition(FHitResult HitResult);
+
 
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, 

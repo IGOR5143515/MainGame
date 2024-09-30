@@ -3,6 +3,7 @@
 #include "Character/TowerCharacter/Projectile.h"
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "AI/AICharacter.h"
+#include "Components/HealthComponent.h"
 
 
 ATowerAIController::ATowerAIController()
@@ -39,17 +40,22 @@ void ATowerAIController::Fire()
 {
 	if (!CanFire)return;
 	
-	UE_LOG(LogTemp, Error, TEXT("Fire!"));
 	ATowerCharacter* TowerCharacter = Cast<ATowerCharacter>(GetPawn());
 	if (!TowerCharacter)return;
 	
 
 	if (CurrentTurget && ProjectileClass) {
+
+		if (Cast<AAICharacter>(CurrentTurget)->HealthComponent->IsDead()) {
+			CurrentTurget = nullptr;
+			return;
+		}
 		FVector Location = TowerCharacter->GetMesh()->GetSocketLocation(MuzzleName);
 		FVector Direction = (CurrentTurget->GetActorLocation() - Location).GetSafeNormal(); 
 		FRotator Rotation = Direction.Rotation(); 
 
 		
+	UE_LOG(LogTemp, Error, TEXT("Fire"));
 
 		if (GetWorld()) {
 			auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, Location, Rotation);
