@@ -30,6 +30,10 @@ ACubeCharacter::ACubeCharacter()
 void ACubeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	check(CameraComponent);
+	check(SpringArm);
+	check(HealthComponent);
+
 	HealthComponent->OnDeathDelegate.AddUObject(this, &ACubeCharacter::OnDeath);
 	OnTakeAnyDamage.AddDynamic(this, &ACubeCharacter::OnTakeAnyDamageHandle);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACubeCharacter::OnOverlap);
@@ -185,7 +189,7 @@ void ACubeCharacter::IsBuildingMode()
 		Build = true;
 		FActorSpawnParameters SpawnParametrs;
 		SpawnParametrs.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GhostTower = GetWorld()->SpawnActor<ATowerCharacter>(TowerClass, SpawnParametrs);
+		GhostTower = GetWorld()->SpawnActor<ATowerCharacter>(TowerClass, SpawnParametrs);				//Spawning GhostTower 
 		GhostTower->SetActorEnableCollision(false);
 		GhostTower->GetMesh()->SetMaterial(0,AllowedMaterial);
 		if (!GhostTower)return;
@@ -196,7 +200,7 @@ void ACubeCharacter::IsBuildingMode()
 	if (Build) {
 		Build = false;
 		
-		GhostTower->Destroy();
+		GhostTower->Destroy();		//Destroy GhostTower
 		GhostTower = nullptr;
 		return;
 	}
@@ -248,7 +252,7 @@ void ACubeCharacter::UpdateBuildLocation(FVector NewLocation)
 void ACubeCharacter::PlaceTower()
 {
 	if (!GetWorld())return;
-	if (!CanBuild)return;
+	if (!CanBuild)return;   
 
 	FActorSpawnParameters SpawnParametrs;
 	SpawnParametrs.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -262,6 +266,7 @@ void ACubeCharacter::PlaceTower()
 
 void ACubeCharacter::CheckBuildCondition(FHitResult HitResult)
 {
+	if (!GetWorld())return;
 	float MaxAllowedSlope = 45.0f;
 	FVector Normal = HitResult.Normal;
 	FVector BuildLocation = HitResult.Location;
@@ -270,11 +275,14 @@ void ACubeCharacter::CheckBuildCondition(FHitResult HitResult)
 	if (SlopeAngle > MaxAllowedSlope) 
 	{
 		CanBuild = false;  
-		GhostTower->GetMesh()->SetMaterial(0, ForbiddenMaterial);
+		GhostTower->GetMesh()->SetMaterial(0, ForbiddenMaterial); 
 		return;
+		
 	}
 	else
 		CanBuild = true;
 		GhostTower->GetMesh()->SetMaterial(0, AllowedMaterial);
+
+	
 
 }
