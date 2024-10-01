@@ -6,6 +6,12 @@
 #include "Components/HealthComponent.h"
 #include "AI/MyAIPerceptionComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Character/CubeCharacter.h"
+#include "Character/TowerCharacter/TowerCharacter.h"
+#include "Engine/DamageEvents.h"
+#include "GameFramework/Character.h"
+
+
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -28,11 +34,12 @@ void AAICharacter::BeginPlay()
 
 }
 
+
 // Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	TraceToTakeDamage();
 }
 
 // Called to bind functionality to input
@@ -48,11 +55,13 @@ void AAICharacter::OnDeathAI()
 	auto controll =Cast<AMyAIController>(GetController());
 	if (!controll)return;
 	controll->Perception->SetActive(false);
-
 	SetActorEnableCollision(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
-	SetLifeSpan(0.1f);
+	SetLifeSpan(3.0f);
+	PlayAnimMontage(DeathAnimMontage);
+	
+	
 }
 
 void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
@@ -61,11 +70,47 @@ void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-
-
 	HealthComponent->TakeDamage(25);
 
 	if (HealthComponent->IsDead())
 		HealthComponent->OnDeathDelegate.Broadcast();
+}
+
+void AAICharacter::TraceToTakeDamage()
+{
+	if (!GetWorld())return;
+	FVector Location = GetActorLocation();
+	FVector Rotation= GetActorRotation().Vector();
+
+	FVector TraceEnd = Location + (Rotation * 100);
+
+	FCollisionQueryParams COQP;
+	COQP.AddIgnoredActor(this);
+	FCollisionResponseParams ColRes;
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, Location, TraceEnd,
+		ECollisionChannel::ECC_Visibility, COQP);
+		
+	DrawDebugLine(GetWorld(), Location, TraceEnd, FColor::Green, false, 0.5f);
+	
+	if (HitResult.bBlockingHit&&HitResult.GetActor()->IsA<ACubeCharacter>()) {
+		if (!StartAnimation&&!HealthComponent->IsDead()) {
+			StartAnimation = true;
+
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AAICharacter::ResetAnimation, 1.0f, false);
+
+			AttackAndAnimation(HitResult.GetActor());
+		}
+			
+	}
+}
+
+void AAICharacter::AttackAndAnimation(AActor* Actor)
+{
+	if (!GetWorld())return;
+
+	PlayAnimMontage(AnimMontage);
+	Actor->TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
+	
 
 }

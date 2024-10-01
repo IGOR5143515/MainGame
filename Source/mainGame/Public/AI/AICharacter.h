@@ -27,11 +27,18 @@ public:
 		DamageType,
 		AController* InstigatedBy,
 		AActor* DamageCauser);
+
+	void TraceToTakeDamage();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void AttackAndAnimation(AActor * Actor);
+	FTimerHandle TimerHandle;
 
+	bool StartAnimation = false;
+
+	void ResetAnimation() { StartAnimation = false; }
 
 public:	
 	// Called every frame
@@ -46,5 +53,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	UHealthComponent* HealthComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UAnimMontage* AnimMontage;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UAnimMontage* DeathAnimMontage;
 };

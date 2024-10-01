@@ -37,12 +37,16 @@ void ACubeCharacter::BeginPlay()
 	HealthComponent->OnDeathDelegate.AddUObject(this, &ACubeCharacter::OnDeath);
 	OnTakeAnyDamage.AddDynamic(this, &ACubeCharacter::OnTakeAnyDamageHandle);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACubeCharacter::OnOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACubeCharacter::EndOverlap);
 }
 
 
 void ACubeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	
+
 	if (Build)
 		BuildingMode();
 
@@ -128,6 +132,7 @@ void ACubeCharacter::MakeHit()
 	DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Green, false, 1.0f);
 
 	if (HitResult.bBlockingHit) {
+		UE_LOG(LogTemp, Error, TEXT("Cube"));
 		HitResult.GetActor()->TakeDamage(10.0f, FDamageEvent(), Controller, GetParentActor());
 	}
 }
@@ -156,6 +161,7 @@ void ACubeCharacter::OnTakeAnyDamageHandle(AActor* DamagedActor,
 		HealthComponent->OnDeathDelegate.Broadcast();
 }
 
+
 void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -163,9 +169,12 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-
-	
 	if (OtherActor->IsA<AAICharacter>()) {
+
+	IsOverlapCube = true;
+	}
+
+	/*if (OtherActor->IsA<AAICharacter>()) {
 		
 		
 		TakeDamage(DamageToCube, FDamageEvent(), GetController(), OtherActor);
@@ -180,7 +189,17 @@ void ACubeCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent,
 			AIChar->LaunchCharacter(LaunchDirection*LaunchStrength, false, false);
 		
 		}
+	}*/
+
+}
+
+void ACubeCharacter::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor->IsA<AAICharacter>()) {
+
+		IsOverlapCube = false;
 	}
+	
 }
 
 void ACubeCharacter::IsBuildingMode()

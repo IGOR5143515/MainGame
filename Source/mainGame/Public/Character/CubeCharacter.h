@@ -33,6 +33,9 @@ public:
 	bool CanBuild = true;
 	void IsBuildingMode();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsOverlapCube = false;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -63,6 +66,8 @@ protected:
 	UMaterial* ForbiddenMaterial;
 
 	ATowerCharacter* GhostTower=nullptr;
+
+
 
 
 public:	
@@ -111,6 +116,13 @@ public:
 	AController* InstigatedBy,
 	AActor* DamageCauser);
 
+	UFUNCTION()
+	void EndOverlap(UPrimitiveComponent*
+		OverlappedComponent,
+		AActor* OtherActor, 
+		UPrimitiveComponent*
+		OtherComp, int32
+		OtherBodyIndex);
 
 	
 };
