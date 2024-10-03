@@ -60,8 +60,6 @@ void AAICharacter::OnDeathAI()
 
 	SetLifeSpan(3.0f);
 	PlayAnimMontage(DeathAnimMontage);
-	
-	
 }
 
 void AAICharacter::OnTakeAnyDamageHandleAI(AActor* DamagedActor,
@@ -90,8 +88,6 @@ void AAICharacter::TraceToTakeDamage()
 	FHitResult HitResult;
 	GetWorld()->LineTraceSingleByChannel(HitResult, Location, TraceEnd,
 		ECollisionChannel::ECC_Visibility, COQP);
-		
-	DrawDebugLine(GetWorld(), Location, TraceEnd, FColor::Green, false, 0.5f);
 	
 	if (HitResult.bBlockingHit&&HitResult.GetActor()->IsA<ACubeCharacter>()) {
 		if (!StartAnimation&&!HealthComponent->IsDead()) {
