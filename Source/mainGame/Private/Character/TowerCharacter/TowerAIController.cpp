@@ -4,11 +4,12 @@
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "AI/AICharacter.h"
 #include "Components/HealthComponent.h"
+#include "Perception/AISense_Sight.h"
 
 
 ATowerAIController::ATowerAIController()
 {
-	Perception->OnTargetPerceptionUpdated.AddDynamic(this,&ATowerAIController::OnTargetPerceived);
+	/*Perception->OnTargetPerceptionUpdated.AddDynamic(this,&ATowerAIController::OnTargetPerceived);*/
 }
 
 void ATowerAIController::OnPossess(APawn* InPawn)
@@ -20,21 +21,18 @@ void ATowerAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 		Fire();
-	
-	
 
 }
-
-void ATowerAIController::OnTargetPerceived(AActor* Actor, FAIStimulus Stimulus)
-{
-	
-	if (Stimulus.WasSuccessfullySensed()&&Actor->IsA<AAICharacter>()) {
-		CurrentTurget = Actor;
-	}
-	else
-		CurrentTurget = nullptr;
-	
-}
+//void ATowerAIController::OnTargetPerceived(AActor* Actor, FAIStimulus Stimulus)
+//{
+//	
+//	if (Stimulus.WasSuccessfullySensed()&&Actor->IsA<AAICharacter>()) {
+//		CurrentTurget = Actor;
+//	}
+//	else
+//		CurrentTurget = nullptr;
+//	
+//}
 
 void ATowerAIController::Fire()
 {
@@ -44,18 +42,20 @@ void ATowerAIController::Fire()
 	if (!TowerCharacter)return;
 	
 
-	if (CurrentTurget && ProjectileClass) {
+	if (ProjectileClass) {
 
-		if (Cast<AAICharacter>(CurrentTurget)->HealthComponent->IsDead()) {
-			CurrentTurget = nullptr;
+		/*if (Cast<AAICharacter>(CurrentTurget)->HealthComponent->IsDead()) {
+			
 			return;
-		}
+		}*/
+
+		AActor* FindingActor = FindCurrnetTarget();
+		if (!FindingActor)return;
+
 		FVector Location = TowerCharacter->GetMesh()->GetSocketLocation(MuzzleName);
-		FVector Direction = (CurrentTurget->GetActorLocation() - Location).GetSafeNormal(); 
+		FVector Direction = (FindingActor->GetActorLocation() - Location).GetSafeNormal();
 		FRotator Rotation = Direction.Rotation(); 
 
-		
-	UE_LOG(LogTemp, Error, TEXT("Fire"));
 
 		if (GetWorld()) {
 			auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, Location, Rotation);
@@ -69,6 +69,30 @@ void ATowerAIController::Fire()
 		}
 
 	}
+
+}
+
+AActor* ATowerAIController::FindCurrnetTarget()
+{
+	AActor* Obj = nullptr;
+	TArray<AActor*>FindingActors;
+
+	Perception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), FindingActors);
+
+	float BestDistance = MAX_FLT;
+
+	for (auto x : FindingActors) {
+		if (x->IsA<AAICharacter>()) {
+
+			float CurrnetDistance = (x->GetActorLocation() - GetPawn()->GetActorLocation()).Size();
+			if (CurrnetDistance < BestDistance) {
+				BestDistance = CurrnetDistance;
+				Obj = x;
+			}
+
+		}
+	}
+	return Obj;
 
 }
 

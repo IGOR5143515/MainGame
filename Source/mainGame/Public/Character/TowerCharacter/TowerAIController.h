@@ -19,8 +19,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 protected:
 
-	UFUNCTION()
-	void OnTargetPerceived(AActor* Actor, FAIStimulus Stimulus);
+	//UFUNCTION()
+	//void OnTargetPerceived(AActor* Actor, FAIStimulus Stimulus);
 	
 	AActor* CurrentTurget=nullptr;
 
@@ -35,6 +35,6 @@ protected:
 	void Fire();
 	void ResetFire() { CanFire = true; }
 
-	
+	AActor *FindCurrnetTarget();
 
 };
