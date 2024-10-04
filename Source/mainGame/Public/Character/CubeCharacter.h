@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsOverlapCube = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buy Tower")
+	int Coins = 100;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -67,7 +70,8 @@ protected:
 
 	ATowerCharacter* GhostTower=nullptr;
 
-
+	void Run();
+	void StopRun();
 
 
 public:	

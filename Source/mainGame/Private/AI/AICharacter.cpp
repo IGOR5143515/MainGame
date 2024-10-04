@@ -10,6 +10,7 @@
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -57,6 +58,11 @@ void AAICharacter::OnDeathAI()
 	controll->Perception->SetActive(false);
 	SetActorEnableCollision(false);
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	auto OwnerCharacter = Cast<ACubeCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), ACubeCharacter::StaticClass()));
+	if (!OwnerCharacter)return;
+	OwnerCharacter->Coins += 10;
+	
 
 	SetLifeSpan(3.0f);
 	PlayAnimMontage(DeathAnimMontage);

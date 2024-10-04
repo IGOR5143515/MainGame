@@ -25,12 +25,18 @@ protected:
 	float Health;
 	float MaxHealth=100;
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	float HealthPercent() { return Health / MaxHealth; }
+
 public:	
 	void TakeDamage(float Value) {
 
 		UE_LOG(LogTemp, Error, TEXT("%f"), Health);
 		FMath::Clamp(Health = Health - Value, 0, MaxHealth);
 	}
+
+
+
 
 	bool IsDead() { return Health <= 0.0f; }
 	float GetHealth() { return Health; }

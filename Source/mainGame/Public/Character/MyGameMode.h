@@ -24,6 +24,10 @@ public:
 
 	void SpawnBots(FVector Location, FRotator Rotation);
 
+	void StartGame();
+
+	FTimerHandle TimerHandle;
+
 	virtual void BeginPlay()override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
@@ -31,5 +35,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TSubclassOf<APawn> AIPawnClass;
-	
+
+	int NumberOfEnemies = 0;
+	int OneMinute = 60;
 };

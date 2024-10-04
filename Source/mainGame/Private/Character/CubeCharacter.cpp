@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Character/TowerCharacter/TowerCharacter.h"
 #include "Character/TowerCharacter/TowerAIController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ACubeCharacter::ACubeCharacter()
 {
@@ -41,6 +42,7 @@ void ACubeCharacter::BeginPlay()
 }
 
 
+
 void ACubeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -70,6 +72,9 @@ void ACubeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACubeCharacter::StopFire);
 	
 	PlayerInputComponent->BindAction("BuildingMode", IE_Pressed, this, &ACubeCharacter::IsBuildingMode);
+
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ACubeCharacter::Run);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ACubeCharacter::StopRun);
 }
 
 void ACubeCharacter::MoveForward(float Value)
@@ -87,6 +92,18 @@ void ACubeCharacter::JumpCharacter()
 	LaunchCharacter(FVector(0, 0, 500), false, false);
 }
 
+void ACubeCharacter::Run()
+{
+	auto Movement =Cast<UCharacterMovementComponent>(GetMovementComponent());
+	Movement->MaxWalkSpeed = 1000.0f;
+	
+}
+
+void ACubeCharacter::StopRun()
+{
+	auto Movement = Cast<UCharacterMovementComponent>(GetMovementComponent());
+	Movement->MaxWalkSpeed = 600.0f;
+}
 
 void ACubeCharacter::StartFire()
 {
@@ -95,10 +112,10 @@ void ACubeCharacter::StartFire()
 		PlaceTower();
 		return;
 	}
-	if(GetWorld())
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACubeCharacter::MakeHit, 0.2f, true);
-
-	MakeHit();
+	//if(GetWorld())
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACubeCharacter::MakeHit, 0.2f, true);
+		 
+	//MakeHit();
 }
 
 void ACubeCharacter::StopFire()
@@ -279,7 +296,7 @@ void ACubeCharacter::PlaceTower()
 	ATowerCharacter *Tower = GetWorld()->SpawnActor<ATowerCharacter>(TowerClass,GhostTower->GetActorLocation(),GhostTower->GetActorRotation(), SpawnParametrs);
 	if (!Tower)return;
 
-	
+	Coins = FMath::Clamp(Coins - 25, 0, 100);
 	
 }
 
@@ -302,6 +319,14 @@ void ACubeCharacter::CheckBuildCondition(FHitResult HitResult)
 		CanBuild = true;
 		GhostTower->GetMesh()->SetMaterial(0, AllowedMaterial);
 
+		if (Coins <25) {
+			CanBuild = false;
+			GhostTower->GetMesh()->SetMaterial(0, ForbiddenMaterial);
+		}
+		else {
+			CanBuild = true;
+			GhostTower->GetMesh()->SetMaterial(0, AllowedMaterial);
+		}
 	
 
 }

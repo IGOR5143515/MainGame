@@ -47,14 +47,7 @@ bool AMyGameMode::GameOver()
 
 void AMyGameMode::Tick(float DeltaSeconds)
 {
-	//if (GameOver())
-	//	UE_LOG(LogTemp, Error, TEXT("Destroy all towers!!!"));
-	
-	/*TArray<AActor*> TowersArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAICharacter::StaticClass(), TowersArray);
 
-	if (TowersArray.Num() < 3)
-		SpawnBots(FVector(), FRotator());*/
 }
 
 void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
@@ -63,9 +56,7 @@ void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
 
 	FActorSpawnParameters SpawnParametrs;
 	SpawnParametrs.SpawnCollisionHandlingOverride= ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	//auto AIController = GetWorld()->SpawnActor<AMyAIController>(BotClass, Location, Rotation, SpawnParametrs);
-	//RestartPlayer(AIController);
-
+	
 	if (!GetWorld())return;
 
 	AAICharacter* AICharacter = GetWorld()->SpawnActor<AAICharacter>(AIPawnClass, Location, Rotation, SpawnParametrs);
@@ -80,17 +71,30 @@ void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
 
 }
 
+void AMyGameMode::StartGame()
+{
+	TArray<AActor*>TargetPointArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), TargetPointArray);
+
+	NumberOfEnemies += 1;
+
+	for (size_t i = 0; i < NumberOfEnemies; i++)
+	{
+		for (auto x : TargetPointArray)
+			SpawnBots(x->GetActorLocation(), x->GetActorRotation()); 
+	}
+
+}
+
 void AMyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-	
-	/*	TArray<AActor*>TargetPointArray;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), TargetPointArray);
+	if (!GetWorld())return;
 
-		for (auto x : TargetPointArray)
-			SpawnBots(x->GetActorLocation(), x->GetActorRotation());*/
+	StartGame();
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyGameMode::StartGame, OneMinute, true);  // Spawn Enamies avery 60 seconds
+
 
 
 }
