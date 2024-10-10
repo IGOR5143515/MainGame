@@ -5,12 +5,13 @@
 #include "Character/TowerCharacter/TowerAIController.h"
 #include "Engine/DamageEvents.h"
 #include "AI/MyAIPerceptionComponent.h"
-
+#include "Components/HealthComponent.h"
 ATowerCharacter::ATowerCharacter() :Super()
 {
 	AutoPossessAI = EAutoPossessAI::Disabled;
 	AIControllerClass = ATowerAIController::StaticClass();
 
+	HealthComponent->SetHealth(100);
 	
 }
 

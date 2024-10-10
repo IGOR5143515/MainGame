@@ -47,11 +47,8 @@ void ACubeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
-
 	if (Build)
 		BuildingMode();
-
 
 }
 
@@ -327,6 +324,4 @@ void ACubeCharacter::CheckBuildCondition(FHitResult HitResult)
 			CanBuild = true;
 			GhostTower->GetMesh()->SetMaterial(0, AllowedMaterial);
 		}
-	
-
 }

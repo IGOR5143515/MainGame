@@ -36,6 +36,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TSubclassOf<APawn> AIPawnClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	TSubclassOf<APawn> TronClass;
+
+
 	int NumberOfEnemies = 0;
 	int OneMinute = 60;
 };

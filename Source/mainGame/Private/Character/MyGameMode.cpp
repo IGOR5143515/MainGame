@@ -28,26 +28,34 @@ UClass* AMyGameMode::GetDefaultPawnClassForController_Implementation(AController
 
 bool AMyGameMode::GameOver()
 {
-	bool temp=false;
-	TArray<AActor*> TowersArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATowerCharacter::StaticClass(), TowersArray);
+	//bool temp=false;
+	//TArray<AActor*> TowersArray;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATowerCharacter::StaticClass(), TowersArray);
 
-	for (auto& x : TowersArray) {
+	//for (auto& x : TowersArray) {
 
-		ATowerCharacter* Tower = Cast<ATowerCharacter>(x);
-		
-		if (Tower->IsDead)
-			temp = true;
-		else return false;
+	//	ATowerCharacter* Tower = Cast<ATowerCharacter>(x);
+	//	
+	//	if (Tower->IsDead)
+	//		temp = true;
+	//	else return false;
 
-	}
-	return temp;
+	//}
+	//return temp;
 
+	 auto Trone =Cast<ATowerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), TronClass));
+	 if (!Trone) return false;
+
+	 if (Trone->IsDead)
+		 return true;
+	 
+	 return false;
 }
 
 void AMyGameMode::Tick(float DeltaSeconds)
 {
-
+	if (GameOver())
+		UE_LOG(LogTemp, Error, TEXT("GAME OVER"));
 }
 
 void AMyGameMode::SpawnBots(FVector Location, FRotator Rotation)
